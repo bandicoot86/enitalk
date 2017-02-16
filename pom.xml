@@ -37,8 +37,8 @@
                 <bot.login>demo</bot.login>
                 <bot.pass>123</bot.pass>
                 
-                <rbk.pass1>Pl2Qb6RllA8TRW8c3zry</rbk.pass1>
-                <rbk.pass2>jvx29o80qQxc7KZdTiRI</rbk.pass2>
+                <rbk.pass1></rbk.pass1>
+                <rbk.pass2></rbk.pass2>
                 <rbk.test>true</rbk.test>
                 
                 <paypal.auth></paypal.auth>
@@ -82,8 +82,8 @@
                 <rbk.pass2>c9cyWZQM98tnUwi7UB5B</rbk.pass2>
                 <rbk.test>false</rbk.test>-->
                 
-                <rbk.pass1>Pl2Qb6RllA8TRW8c3zry</rbk.pass1>
-                <rbk.pass2>jvx29o80qQxc7KZdTiRI</rbk.pass2>
+                <rbk.pass1></rbk.pass1>
+                <rbk.pass2></rbk.pass2>
                 <rbk.test>true</rbk.test>
                 
                 <paypal.auth></paypal.auth>
