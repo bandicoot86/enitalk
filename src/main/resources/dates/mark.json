@@ -1,0 +1,63 @@
+{
+    "calendar": {
+        "timeZone": "Etc/GMT-1"
+    },
+    "visible": true,
+    "lvl": [
+        "Beginners",
+        "Intermediate",
+        "Upper intermediate",
+        "Advanced",
+        "Fluent"
+    ],
+    "video": "https://youtu.be/Jejn8SFmGH8",
+    "embed" : "https://www.youtube.com/embed/Jejn8SFmGH8",
+    "skills": [
+        "Conversation",
+        "Any Exam",
+        "Grammar"
+    ],
+    "schedule": [
+        {
+            "day": "Mon",
+            "start": "09:00",
+            "end": "17:00"
+        },
+        {
+            "day": "Tue",
+            "start": "09:00",
+            "end": "17:00"
+        },
+        {
+            "day": "Wed",
+            "start": "09:00",
+            "end": "17:00"
+        },
+        {
+            "day": "Thu",
+            "start": "09:00",
+            "end": "17:00"
+        },
+        {
+            "day": "Fri",
+            "start": "09:00",
+            "end": "17:00"
+        },
+        {
+            "day": "Sat",
+            "start": "09:00",
+            "end": "17:00"
+        },
+        {
+            "day": "Sun",
+            "start": "09:00",
+            "end": "17:00"
+        }
+    ],
+    "rate": 20,
+    "name": "Mark",
+    "text": "Introduction text",
+    "coeff": 1.4,
+    "email": "douthwaitemark@gmail.com",
+    "notice": 6
+}

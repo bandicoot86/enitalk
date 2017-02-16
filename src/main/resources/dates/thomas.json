@@ -1,0 +1,34 @@
+{
+    "calendar" : {
+        "timeZone" : "Europe/Moscow"
+    },
+    "visible" : true,
+    "lvl" : [ 
+        "B2",
+        "C1",
+        "C2",
+        "CP"                
+    ],    
+    "video" : "https://youtu.be/RQU_m-dCfBs",
+    "skills" : [
+        "Conversation",
+        "Business"
+    ],    
+    "schedule" : [  
+        {
+            "day" : "Sat",
+            "start" : "09:00",
+            "end" : "20:00"
+        }, 
+        {
+            "day" : "Sun",
+            "start" : "15:00",
+            "end" : "20:00"
+        }
+    ],
+    "rate" : 15,
+    "name" : "Thomas",    
+    "text" : "Introduction text",
+    "coeff" : 0.8,
+    "email" : "tokwadwo1@gmail.com"
+}

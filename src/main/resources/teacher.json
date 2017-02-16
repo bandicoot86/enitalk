@@ -1,0 +1,48 @@
+{
+    "calendar": {
+        "timeZone": "Europe/Moscow"
+    },
+    "visible": true,
+    "lvl": [
+        "B1",
+        "CPE"
+    ],
+    "video": "https://youtu.be/NACl9SInxGk",
+    "skills": [
+        "CAE",
+        "CPE",
+        "Business"
+    ],
+    "schedule": [
+        {
+            "day": "Mon",
+            "start": "09:00",
+            "end": "18:00"
+        },
+        {
+            "day": "Tue",
+            "start": "09:00",
+            "end": "18:00"
+        },
+        {
+            "day": "Wed",
+            "start": "09:00",
+            "end": "18:00"
+        },
+        {
+            "day": "Thu",
+            "start": "09:00",
+            "end": "18:00"
+        },
+        {
+            "day": "Fri",
+            "start": "09:00",
+            "end": "18:00"
+        }
+    ],
+    "rate": 10,
+    "name": "Doe",
+    "text": "Introduction text",
+    "coeff": 0.8,
+    "email": "ceo@enitalk.com"
+}

@@ -1,0 +1,7 @@
+0x2705 You have succesfully booked a lesson! How it works from now on:
+
+0x1f55b %s, open the link we sent to your email. Use a laptop with a good webcam
+0x1f4e3 Enjoy your lesson
+In case you get disconnected, just open the same link again.
+
+Thank you and have a nice lesson!

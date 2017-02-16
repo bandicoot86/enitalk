@@ -1,0 +1,46 @@
+{
+    "calendar": {
+        "timeZone": "Asia/Calcutta"
+    },
+    "visible": true,
+    "lvl": [
+        "Beginners",
+        "Intermediate",
+        "Upper intermediate"
+    ],
+    "video": "https://youtu.be/Jejn8SFmGH8",
+    "skills": [
+        "Exams preparation",
+        "Conversation",
+        "IELTS",
+        "Grammar"
+    ],
+    "schedule": [
+        {
+            "day": "Thu",
+            "start": "12:00",
+            "end": "17:00"
+        },
+        {
+            "day": "Fri",
+            "start": "12:00",
+            "end": "17:00"
+        },
+        {
+            "day": "Sat",
+            "start": "12:00",
+            "end": "17:00"
+        },
+        {
+            "day": "Sun",
+            "start": "12:00",
+            "end": "17:00"
+        }
+    ],
+    "rate": 15,
+    "name": "Neha",
+    "text": "Introduction text",
+    "coeff": 1.3,
+    "email": "mrs.rajdeep@yahoo.com",
+    "notice": 12
+}

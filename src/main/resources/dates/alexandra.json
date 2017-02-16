@@ -1,0 +1,36 @@
+{
+    "calendar": {
+        "timeZone": "Europe/London"
+    },
+    "visible": true,
+    "lvl": [
+        "Intermediate",
+        "Upper intermediate",
+        "Advanced"
+    ],
+    "video": "https://www.youtube.com/watch?v=JgyFS9bK6Wg",
+    "skills": [
+        "Conversational fluency",
+        "CPE",
+        "Business",
+        "Interview preparation"
+    ],
+    "schedule": [
+        {
+            "day": "Tue",
+            "start": "10:00",
+            "end": "18:00"
+        },
+        {
+            "day": "Sat",
+            "start": "10:00",
+            "end": "18:00"
+        }
+    ],
+    "rate": 23,
+    "name": "Alexandra",
+    "text": "Introduction text",
+    "coeff": 0.8,
+    "email": "lyle.alexandra@gmail.com",
+    "notice" : 12
+}

@@ -1,0 +1,8 @@
+{
+    "From": "lesson@enitalk.com",
+    "To": "avcrash@gmail.com",
+    "Subject": "Your lesson has been uploaded",
+    "HtmlBody": "Congratulations! We have uploaded your video to Youtube. You can watch it here:\n ",
+    "Tag": "video.uploaded",
+    "TrackOpens": true
+}

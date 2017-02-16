@@ -1,0 +1,47 @@
+{
+    "calendar": {
+        "timeZone": "Europe/Moscow"
+    },
+    "visible": true,
+    "lvl": [
+        "Intermediate",
+        "Upper intermediate",
+        "Advanced"
+    ],
+    "video": "https://www.youtube.com/watch?v=9jL0_4DAj00",
+    "skills": [
+        "General English",
+        "Conversational fluency",
+        "IELTS",
+        "TOEFL",
+        "Business English",
+        ""
+    ],
+    "schedule": [
+        {
+            "day": "Mon",
+            "times": ["13:00", "14:00"]
+        },
+        {
+            "day": "Tue",
+            "times": ["12:00", "13:00", "14:00"]
+        },
+        {
+            "day": "Wed",
+            "times": ["13:00", "14:00"]
+        },
+        {
+            "day": "Thu",
+            "times": ["10:00", "11:00", "12:00", "13:00", "14:00", "19:00", "20:00"]
+        },
+        {
+            "day": "Fri",
+            "times": ["13:00", "14:00"]
+        }
+    ],
+    "rate": 25,
+    "name": "Quinne",
+    "text": "Introduction text",
+    "coeff": 0.8,
+    "email": "qkampschroer@gmail.com"
+}

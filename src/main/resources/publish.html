@@ -1,0 +1,236 @@
+<!DOCTYPE HTML>
+<html>
+
+    <body>
+    <base href="/">
+    <script src="https://static.opentok.com/v2/js/opentok.js" charset="utf-8"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.min.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angularjs-scroll-glue/2.0.7/scrollglue.min.js" charset="utf-8"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" />
+    <script src="https://cdn.pubnub.com/pubnub-3.16.0.min.js"></script>
+    <style type="text/css">
+        .pt15 {
+            padding-top: 15px;
+            font-size: medium;
+        }
+
+        .small {
+            font-size: small;
+        }
+
+        .mb15 {
+            margin-bottom: 15px;
+        }
+    </style>
+    <script charset="utf-8">
+
+        var app = angular.module('enitalk', ['luegg.directives']);
+        app.config(['$locationProvider', function ($locationProvider) {
+                $locationProvider.html5Mode(true);
+            }]);
+
+        app.controller('EnitalkCtrl', function ($scope, $location, $window, $http) {
+            console.log('From enitalk controller ', $location.search());
+            var event = $location.search().i;
+            var dest = $location.search().dest;
+
+            $scope.dest = dest;
+
+            var apiKey = '%s';
+            var sessionId = '%s';
+            var token = '%s';
+//            var server = '@self.url@/video/join';
+//
+//            $http.post(server, {i: event, dest: dest}).then(function () {
+//                console.log('Post sent');
+//            });
+
+            var session = OT.initSession(apiKey, sessionId)
+                    .on('streamCreated', function (event) {
+                        console.log('New stream created');
+                        var options = {
+                            width: 'auto',
+                            height: '480px',
+                            insertMode: 'append'
+                        }
+
+                        session.subscribe(event.stream, 'second', options);
+                    }).connect(token, function (error) {
+                        var publisherOptions = {
+                            insertMode: 'append',
+                            width: 'auto',
+                            height: '480px'
+                        };
+                        var publisher = OT.initPublisher('first', publisherOptions);
+                        session.publish(publisher);
+            });
+
+            $window.onbeforeunload = function () {
+                console.log('Disconnecting from session ', dest);
+                session.disconnect();
+            };
+
+            console.log('Ev dest ', event, dest, typeof dest);
+
+            $scope.messages = [];
+            var custom_uuid = PUBNUB.uuid();
+
+            var pubnub = PUBNUB.init({
+                publish_key: 'pub-c-e506dd45-0858-42da-9555-14f54c957e85',
+                subscribe_key: 'sub-c-a74ca4f4-60b1-11e6-8e26-02ee2ddab7fe',
+                restore: true,
+                uuid: custom_uuid,
+                ssl: (('https:' == document.location.protocol) ? true : false),
+                error: function (error) {
+                    console.log('Error init PubNub:', error);
+                }
+            });           
+
+            pubnub.subscribe({
+                channel: event,
+                message: function (message, env, channel) {
+                    if (message.uuid != custom_uuid) {
+                        console.log('Message came pubnub ', message, env, channel);
+                        $scope.messages.push({
+                            text: message.text,
+                            dest: message.dest
+                        });
+                        $scope.$apply();
+                    }
+
+                },
+                connect: function () {
+                    console.log("Connected");
+                    $http.post('@self.url@/log/event', {
+                        i : event,
+                        dest  : dest,
+                        event : 'connect'
+                    });
+                },
+                disconnect: function () {
+                    console.log("Disconnected");
+                    $http.post('@self.url@/log/event', {
+                        i : event,
+                        dest  : dest,
+                        event : 'disconnect'
+                    });
+                },
+                reconnect: function () {
+                    console.log("Reconnected");
+                    $http.post('@self.url@/log/event', {
+                        i : event,
+                        dest  : dest,
+                        event : 'reconnect'
+                    });
+                },
+                error: function () {
+                    console.log("Network Error");
+                    $http.post('@self.url@/log/event', {
+                        i : event,
+                        dest  : dest,
+                        event : 'error:'
+                    });
+
+                },
+            });
+
+            pubnub.history({
+                channel: event,
+                callback: function (m) {
+                    console.log(JSON.stringify(m));
+                    var l = m[0].length;
+                    console.log('Length ', l);
+                    if (l > 0) {
+                        console.log('Messages available pushing them to current history');
+                        for (var i = 0; i < l; i++) {
+                            $scope.messages.push({
+                                text: m[0][i].text,
+                                dest: m[0][i].dest
+                            });
+                        }
+
+                        $scope.$apply();
+
+                    }
+                },
+                count: 100
+            });
+
+            $scope.sendMessage = function (keyEvent) {
+
+                var code = keyEvent.keyCode;
+                if (code == 13 && $scope.msg) {
+                    console.log('Enter pressed to send msg');
+
+                    pubnub.publish({
+                        channel: event,
+                        message: {
+                            text: $scope.msg,
+                            uuid: custom_uuid,
+                            dest: dest
+                        },
+                        callback: function (m) {
+                            console.log('Pubnub mesage sent ', m);
+                            $scope.messages.push({
+                                text: $scope.msg,
+                                dest: dest
+                            });
+                            $scope.msg = undefined;
+                            $scope.$apply();
+                        }
+                    });
+
+                }
+            };
+
+
+
+
+        });
+    </script>
+    <div class="container-fluid" ng-app="enitalk" ng-controller="EnitalkCtrl">
+        <div class="row">
+            <div class="col-md-12 col-xs-12 col-lg-12 pt15">
+                <span class="text-left text-primary"> <b><i class="fa fa-globe" aria-hidden="true"></i> Enitalk lesson</b></span>
+                <span class="pull-right text-primary"> <b><i class="fa fa-clock-o" aria-hidden="true"></i> Lesson schedule: %s - %s</b></span>
+            </div>
+        </div>
+        <div class="row">
+            <hr/>
+            <div class="col-md-6 col-lg-6 col-xs-6" style="height:480px;background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMwAAADMCAMAAAAI/LzAAAACJVBMVEUAAAAzerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerdR+NKLAAAAtnRSTlMAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAiIyQlJicpKissLi8wMTIzNDU2Nzg5Ojs8Pj9AQUJERUZHSUpLTE1OT1BRUlVWV1hZW1xdXl9hYmNkZmdoaWxtb3Bxc3R3eHl7fH5/gIKDhYaIiYuMjo+RkpSVl5ianZ6goqOlpqiqq62vsLK0tbe5ury+wMHDxcfIyszOz9HT1dfZ2tze4OLk5ujp6+3v8fP19/n7/ZObIiUAAAdtSURBVBgZ7cGJf1TVGQbg985kJgnDbuCLBQSBpIjsQpGKIEsptMom2IBFWgUELFJAEEK1KFiJsmhYIjQ0yBZIAiSZmffvK2qpcu6dJPOdcyfc+5vnQVlZWVlZWVlZWdnTq2rGrqa2LDXyt89/tHgknhp1p2nr+yUJPA0mt9GFnlUYdOljdOVKLQbXuA469DsMpqV5OnXQw6D5PV371MMgWUz3jmBwCMOwFoMhcZ2hqMEg2MZwXEHppbIMyTSU3GaG5TJKzetiaMagxOoYnvdQYo0Mz0MPJZXKM0QvoKSWMEwnUFItDFUlSmgUw7UCJfQ2w9WK0vE6GbIalMwUhu0vKJmjDNsDDyVSkWfopqFEXmH4PkWJXGQJpOGIJwveOvTPr5svBLrMUrh+Idi5k0e3L5lUgYFJ/fZfOT71vts4Av165iij4tJ09ClzglHynykoyFufY8QcTyNY5TlGT8dEBKntYiStht/ULCPqzzDVM7p24EnPZhlh6/FL1Q8YabPxM6+Z0dYzFP+3lVF3GY+NYPStwP98xejrSeNH4xkHW/GjU4yDngo8MpTx8CoeeZ3x0IxHrjEmqoE042I2UM+4eB9Yx7i4DBxgXGSBZsZGCjcYGxncZ2yMAsP08Oze1Qtn1E0YO27y9Pmv/fVkO8M0FgxJ/sz6CRUwJUYvPd7NkAgYht79kxIoaPSf2hkGAd37YmYC/Ri/J0fnBHSt8RkMRGpLDx0T0K1DIzBQFet76JSALl0dh2JUHadLArqTXeOhSHU36Y6AzlzKoHiJfXRGQFd2e1B5OUtHBHSj9yVojWqjGwI60VkDveQ5OiGgC7eHwkbic7ogoAOtlbDjHaYDAtprrYC1/bQnoLU7VXDgBK0JaOvBCLiQOE9bAlrK1qIPmRnrDn7b1pHtbGv+aOPsoehDRSstCWjpZRQ0ce89Pqnzw8keChnWSzsC2jmIAlIbOxjk/tY0CphPOwJauZZAoOS2LAvJ7Ugh2D5aEdBGfhQCze9kXx4sRiCvlTYEtLEZQVIn2Z8zlQgynjYEtHDTQ4BftbN/Xc8jyEFaENDCrxFgTp4DshgB0t3UE1DvcwRYzoFahwDLqSegnsBvJQduA/y8TqoJqPYV/OawGEvgt4ZqAqpNgs+4PIsyFT7JbmoJqHUZPqm7LM79KvhsppaAWq/A5xSLdR4+w6gloFYKpgUs3gr4XKSSgEqfwVTRxeL1VMK0lEoCKs2C6R1q7IOpkkoCKqVgSGWpUg1TM3UE1LkK05vU2QFTA3UE1NkOUyd1ehMwTKGOgDrTYJhErRdhSFFHQJ0qGD6g1j9gukYVAVVyMHVQq9eD4QhVBFRpgSFDvRoYNlFFQJXDMMyk3hIYFlBFQJU3YdhAvXdhGEcVAVUWwXCIeqdgyFBFQJVZMDRT7xYMlVQRUKUehuvU64WhgioCqkyEoZMWYPCoIqBKLQw5WvBgoIqAKgJDFy3ARBUBVZ6D4XvqZWHwqCKgSh0MF6l3B4YkVQRUmQHDEep9CUOaKgKqLIRhE/V2wjCEKgKqvAHDXOotg0GoIqDKfhiGU09gmE0VAVWaYbpPrZwHwzqqCKjSA9Mhap2E6QBVBNRJwVBHrXkwXaKKgDqTYfAeUieXhCFBHQF13oJpG3X2wTSBOgLqfAtTVZ4qw2FaSx0BlRIw7abGMfg0UUdApTqY0t0sXi4DUzJPHQGVDsNnGYu3Hj4LqCSgUi4Jn29YrKsefE5TSUCtOfCpfsDi9A6DTyW1BNRqgl89izMPfquoJaDaGPitZDE2wM+7Ry0B1RoRoIEDtwMBFlFNQL3hCLCFA7UTQW5QTUC9vyPIKg7MRgSZQz0BLdQiyAsP2b/elxAk0U49AS20INCQC+zP1eEI9A4tCGjjNQTy1vSyL7mNHgKNpA0BbXRXIVjVQRbWmEEBZ2lDQCtnUEhmV5ZBch8ORyGbaUVAO1tRUGLWiRyflD81P4mCJtGOgJamoA/emKU7vryTJZm727Rrea2HPqQ7aEdAS10Z9M9D/7yvaUlAWzfScKKRtgS01pKEA7tpTUB7TR6sbaY9AR04nYClBjogoAsXUrDyPl0Q0IlrVdDzPqYTArrR/iy00k10Q0BXVkNnwj06IqAznySh8AadEdCd9uko1sizdEdAlz4bgmIk3qZLAjqV3VCBAZtzi04J6FhPQxoD4S26SccEdC63U9CfIX+4S+cEDMONtcNQWGrhWYZBwJDc2Ts3A7/U1K0tDImAIer55m9/fPE5GZmprB4xZnz9sve+uMcQjcVDxsYo3GRsDMUlxkYaRxgXeWAT4+LfwAzGxX6gmnHxGwC3GRPDAGxhPLTikdGMhzX4wQXGQb4SP5jGONiDn1xl9OUz+MkERl8DHjvAqLuVwGPJG4y4WvysJs9IW41fms0o+wBPWsHo+gSmlYyqYx585uUZSXsQZOwtRk9uMYJVHGHUtIxGQc+3MUq6V6BPM68wKrpeT6I/Y7bf49Mv+3G9hwHJzG1o/O52N59G2bvXTr37ao2HsrKysrKysrKysjKF/wLUeKd2m8iA5QAAAABJRU5ErkJggg==) no-repeat center;" id="first">
+            </div>
+            <div class="col-md-6 col-lg-6 col-xs-6" style="height:480px;background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMwAAADMCAMAAAAI/LzAAAACJVBMVEUAAAAzerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerczerdR+NKLAAAAtnRSTlMAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAiIyQlJicpKissLi8wMTIzNDU2Nzg5Ojs8Pj9AQUJERUZHSUpLTE1OT1BRUlVWV1hZW1xdXl9hYmNkZmdoaWxtb3Bxc3R3eHl7fH5/gIKDhYaIiYuMjo+RkpSVl5ianZ6goqOlpqiqq62vsLK0tbe5ury+wMHDxcfIyszOz9HT1dfZ2tze4OLk5ujp6+3v8fP19/n7/ZObIiUAAAdtSURBVBgZ7cGJf1TVGQbg985kJgnDbuCLBQSBpIjsQpGKIEsptMom2IBFWgUELFJAEEK1KFiJsmhYIjQ0yBZIAiSZmffvK2qpcu6dJPOdcyfc+5vnQVlZWVlZWVlZWdnTq2rGrqa2LDXyt89/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) no-repeat center;" id="second">
+            </div>
+        </div>
+        <div class="row">
+            <hr/>
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-lg-12 col-xs-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading text-primary">
+                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i> <b>Text chat</b>
+                    </div>
+                    <div class="panel-body" style="overflow-y:scroll; height:200px;" scroll-glue>
+                        <div ng-repeat="m in messages">
+                            <p class="small">
+                                <i ng-if="dest == m.dest" class="fa fa-share text-success" aria-hidden="true"></i>
+                                <i ng-if="dest != m.dest" class="fa fa-reply text-success" aria-hidden="true"></i> 
+                                {{::m.text}}
+                            </p>                            
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group margin-bottom-sm mb15">
+                    <input class="form-control" type="text" ng-model="msg" ng-keyup="sendMessage($event);" placeholder="Type your message and press enter">
+                    <span class="input-group-addon"><i class="text-info fa fa-paper-plane" aria-hidden="true"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
